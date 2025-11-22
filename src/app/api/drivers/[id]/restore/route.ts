@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+interface RestoreData {
+  archived: boolean;
+  archived_at: null;
+  archived_reason: null;
+  available: boolean;
+  manually_online: boolean;
+  updated_at: string;
+  name: string;
+  original_name: null;
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -22,20 +33,17 @@ export async function PUT(
       }, { status: 400 })
     }
 
-    const restoreData: any = {
+    const restoreData: RestoreData = {
       archived: false,
       archived_at: null,
       archived_reason: null,
       available: true,
       manually_online: true,
-      updated_at: new Date().toISOString()
-    }
-
-    if (driver.original_name) {
-      restoreData.name = driver.original_name
-      restoreData.original_name = null
-    } else {
-      restoreData.name = driver.name.replace('[ARCHIVIERT] ', '')
+      updated_at: new Date().toISOString(),
+      name: driver.original_name 
+        ? driver.original_name 
+        : driver.name.replace('[ARCHIVIERT] ', ''),
+      original_name: null
     }
 
     const { error: restoreError } = await supabase

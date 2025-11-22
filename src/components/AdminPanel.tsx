@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 
 // This component handles the admin dashboard for managing drivers and job assignments
-// Used by both admin users and call center operators
+// Used by both admin users and call center operators. It's a massive component I intend to break down to smaller parts in future.
 interface AdminPanelProps {
   onClose: () => void
 }
@@ -75,6 +75,7 @@ interface ContactRequest {
 }
 
 export default function AdminPanel({ onClose }: AdminPanelProps) {
+  const handleClose = () => onClose();
   const [driverList, setDriverList] = useState<Driver[]>([])
   const [assignmentList, setAssignmentList] = useState<Assignment[]>([])
   const [partnerRequests, setPartnerRequests] = useState<PartnershipRequest[]>([])
@@ -483,6 +484,7 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
   const handleUserLogout = () => {
     sessionStorage.removeItem('admin-authenticated')
     sessionStorage.removeItem('admin-auth-time')
+    handleClose();
     window.location.href = '/admin/login'
   }
 

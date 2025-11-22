@@ -2,6 +2,29 @@ import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { sanitizeDriverData, safeJsonParse } from '@/lib/sanitize'
 
+interface DriverUpdatePayload {
+  name: string;
+  phone: string;
+  latitude: number;
+  longitude: number;
+  description: string;
+  vehicle_type: string;
+  base_price: number;
+  available: boolean;
+  rating: number;
+  service_areas: string[];
+  features: string[];
+  max_distance: number;
+  response_time: number;
+  service_type: string;
+  manually_online: boolean;
+  working_hours: unknown;
+  updated_at: string;
+  archived?: boolean;
+  archived_at?: null;
+  archived_reason?: null;
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -17,7 +40,7 @@ export async function PUT(
       workingHours = safeJsonParse(workingHours)
     }
 
-    const updatePayload: any = {
+    const updatePayload: DriverUpdatePayload = {
       name: sanitizedData.name,
       phone: sanitizedData.phone,
       latitude: sanitizedData.latitude,

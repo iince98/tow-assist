@@ -10,18 +10,18 @@ export function sanitizeInput(input: string): string {
     .trim()
 }
 
-export function sanitizeValue(value: any): any {
+export function sanitizeValue(value: unknown): unknown {
   if (typeof value === 'string') {
     return sanitizeInput(value)
   } else if (Array.isArray(value)) {
     return value.map(item => sanitizeValue(item))
   } else if (typeof value === 'object' && value !== null) {
-    return sanitizeObject(value)
+    return sanitizeObject(value as Record<string, unknown>)
   }
   return value
 }
 
-export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
+export function sanitizeObject<T extends Record<string, unknown>>(obj: T): T {
   if (typeof obj !== 'object' || obj === null) return obj
   
   const sanitized = { ...obj } as T
@@ -42,13 +42,13 @@ interface DriverData {
   rating?: number | string;
   max_distance?: number | string;
   response_time?: number | string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface LocationData {
   latitude?: number | string;
   longitude?: number | string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export function sanitizeDriverData<T extends DriverData>(data: T): T {
@@ -89,7 +89,7 @@ export function sanitizeLocationData<T extends LocationData>(data: T): T {
   return sanitized
 }
 
-export function safeJsonParse(str: string): any {
+export function safeJsonParse(str: string): unknown {
   try {
     return JSON.parse(str)
   } catch {

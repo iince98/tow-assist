@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { Location } from '@/types'
-import { MapPin, Navigation, ArrowLeft, Satellite, Crosshair, Search } from 'lucide-react'
+import { Navigation, ArrowLeft, Satellite, Crosshair, Search } from 'lucide-react'
 import { useGoogleMaps } from '@/hooks/useGoogleMaps'
 
 interface LocationInputProps {
@@ -16,13 +16,13 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
   const [findingCurrentLocation, setFindingCurrentLocation] = useState(false)
   const [showMapView, setShowMapView] = useState(false)
   
-  const { isLoaded: mapsApiReady, error: mapsError } = useGoogleMaps()
+  const { isLoaded: mapsApiReady} = useGoogleMaps()
 
   const detectCurrentLocation = () => {
     setIsSearching(true)
     setFindingCurrentLocation(true)
     
-    // Check if geolocation is supported
+
     if (!navigator.geolocation) {
       alert('Ihr Browser unterstützt keine Standortermittlung.')
       setIsSearching(false)
@@ -32,8 +32,8 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
 
     const locationSettings = {
       enableHighAccuracy: true,
-      timeout: 18000, // Give it a bit more time
-      maximumAge: 30000 // Accept cached results for 30 seconds
+      timeout: 18000, 
+      maximumAge: 30000 
     }
 
     navigator.geolocation.getCurrentPosition(
@@ -82,7 +82,6 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
           
         } catch (locationProcessingError) {
           console.error('Error while processing location:', locationProcessingError)
-          // Even if processing fails, still use the coordinates
           const backupLocation: Location = {
             latitude,
             longitude,
@@ -180,7 +179,7 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
     }
   }
 
-  // Show map picker if requested
+  // Show map picker when requested
   if (showMapView) {
     return (
       <InteractiveMapPicker 
@@ -341,13 +340,13 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
   )
 }
 
-// Map-based location picker component
+// Map-based location picker 
 function InteractiveMapPicker({ onLocationSelect, onCancel }: { 
   onLocationSelect: (location: Location) => void; 
   onCancel: () => void;
 }) {
   const mapContainerRef = useRef<HTMLDivElement>(null)
-  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
+  const [, setMapInstance] = useState<google.maps.Map | null>(null)
   const currentMarkerRef = useRef<google.maps.Marker | null>(null)
   const [markerIsPlaced, setMarkerIsPlaced] = useState(false)
   const { isLoaded: googleReady } = useGoogleMaps()
@@ -356,7 +355,7 @@ function InteractiveMapPicker({ onLocationSelect, onCancel }: {
     if (!googleReady || !mapContainerRef.current) return
 
     const mapConfiguration: google.maps.MapOptions = {
-      zoom: 13, // Slightly closer zoom
+      zoom: 13, 
       center: { lat: 53.5511, lng: 9.9937 }, // Hamburg center
       zoomControl: true,
       streetViewControl: false,
@@ -387,7 +386,7 @@ function InteractiveMapPicker({ onLocationSelect, onCancel }: {
         icon: {
           path: google.maps.SymbolPath.CIRCLE,
           scale: 8,
-          fillColor: '#EAB308', // Yellow color
+          fillColor: '#EAB308', 
           fillOpacity: 1,
           strokeColor: '#CA8A04',
           strokeWeight: 2,

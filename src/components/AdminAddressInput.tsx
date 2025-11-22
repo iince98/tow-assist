@@ -290,7 +290,7 @@ export default function AdminAddressInput({ onLocationSelect, initialAddress = '
         >
           {suggestions.map((suggestion, index) => (
             <button
-              key={`${suggestion.place_id}-${index}`} // More robust key
+              key={`${suggestion.place_id}-${index}`} 
               onClick={() => chooseSuggestion(suggestion)}
               className="w-full px-5 py-4 text-left hover:bg-yellow-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0 group"
             >

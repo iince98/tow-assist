@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import PartnershipForm from '@/components/PartnershipForm'
-import { ArrowLeft, Users, Shield, TrendingUp, Clock } from 'lucide-react'
+import { ArrowLeft, Shield, TrendingUp, Clock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 export default function PartnersPage() {

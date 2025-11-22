@@ -2,7 +2,7 @@
 
 import { Driver, Location } from '@/types'
 import { Star, Clock, Car, Phone, Check, Shield, Zap, ArrowLeft } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState} from 'react'
 
 interface DriverListProps {
   drivers: Driver[]
@@ -274,7 +274,7 @@ const confirmDriverAssignment = async (driver: Driver) => {
                 
                 <p className="text-gray-600 mb-4">{driverItem.description}</p>
                 
-                {/* Driver info grid - improved layout */}
+                {/* Driver info grid*/}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
                   {/* ETA info */}
                   <div className="flex items-center gap-2 text-yellow-600">

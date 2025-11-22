@@ -23,13 +23,13 @@ export default function ServiceAreasInput({
   const [inputValue, setInputValue] = useState('')
   const [predictions, setPredictions] = useState<AutocompletePrediction[]>([])
   const [showPredictions, setShowPredictions] = useState(false)
-  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)  // renamed for clarity
+  const [isGoogleLoaded, setIsGoogleLoaded] = useState(false)  
   
   // keeping references organized
   const inputRef = useRef<HTMLInputElement>(null)
   const predictionsRef = useRef<HTMLDivElement>(null)
   const autocompleteService = useRef<google.maps.places.AutocompleteService | null>(null)
-  const geocoder = useRef<google.maps.Geocoder | null>(null) // not used but keeping it just in case
+  const geocoder = useRef<google.maps.Geocoder | null>(null) // not used but keeping it just in case it breaks something
 
   // TODO: maybe split this massive effect into smaller functions later
   useEffect(() => {
@@ -156,7 +156,7 @@ export default function ServiceAreasInput({
       searchRequest,
       (results, status) => {
         if (status === window.google.maps.places.PlacesServiceStatus.OK && results) {
-          // limit to 5 results for better UX
+          // limiting to 5 results for better UX, cvan be changed
           const limitedResults = results.slice(0, 5)
           setPredictions(limitedResults)
           setShowPredictions(true)
@@ -173,17 +173,14 @@ export default function ServiceAreasInput({
   }
 
   const selectPrediction = (selectedPrediction: AutocompletePrediction) => {
-    // avoid duplicates
     if (!value.includes(selectedPrediction.description)) {
       const updatedAreas = [...value, selectedPrediction.description]
       onChange(updatedAreas)
     }
     
-    // reset input state
     setInputValue('')
     setShowPredictions(false)
-    
-    // refocus input for better UX
+
     if (inputRef.current) {
       inputRef.current.focus()
     }
@@ -199,7 +196,6 @@ export default function ServiceAreasInput({
   }
 
   const onInputFocus = () => {
-    // show predictions if we have some
     if (predictions.length > 0) {
       setShowPredictions(true)
     }
@@ -210,7 +206,6 @@ export default function ServiceAreasInput({
       e.preventDefault()
       const trimmedInput = inputValue.trim()
       
-      // check for duplicates before adding
       if (!value.includes(trimmedInput)) {
         const newAreasList = [...value, trimmedInput]
         onChange(newAreasList)
@@ -235,23 +230,23 @@ export default function ServiceAreasInput({
       {/* Display existing service areas */}
       {value.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {value.map((serviceArea, idx) => (
-            <span
-              key={`area-${idx}`} // using index is fine for this use case
-              className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
-            >
-              <MapPin className="w-3 h-3" />
-              {serviceArea}
-              <button
-                type="button"
-                onClick={() => deleteArea(serviceArea)}
-                className="hover:bg-blue-200 rounded-full p-0.5 transition-colors duration-200"
-                aria-label={`Remove ${serviceArea}`}
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </span>
-          ))}
+{value.map((serviceArea) => (
+  <span
+    key={serviceArea}
+    className="inline-flex items-center gap-2 bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium"
+  >
+    <MapPin className="w-3 h-3" />
+    {serviceArea}
+    <button
+      type="button"
+      onClick={() => deleteArea(serviceArea)}
+      className="hover:bg-blue-200 rounded-full p-0.5 transition-colors duration-200"
+      aria-label={`Remove ${serviceArea}`}
+    >
+      <X className="w-3 h-3" />
+    </button>
+  </span>
+))}
         </div>
       )}
 
@@ -266,35 +261,34 @@ export default function ServiceAreasInput({
               value={inputValue}
               onChange={onInputChange}
               onFocus={onInputFocus}
-              onKeyDown={onKeyDown} // changed from onKeyPress for better compatibility
+              onKeyDown={onKeyDown} 
               placeholder={placeholder}
               className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 transition-all duration-300 outline-none"
               disabled={!isGoogleLoaded}
             />
 
-            {/* Predictions dropdown */}
-            {showPredictions && predictions.length > 0 && (
-              <div 
-                ref={predictionsRef}
-                className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border-2 border-yellow-500 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto"
-              >
-                {predictions.map((prediction, index) => (
-                  <button
-                    key={prediction.place_id}
-                    type="button"
-                    onClick={() => selectPrediction(prediction)}
-                    className="w-full px-4 py-3 text-left hover:bg-yellow-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0 focus:bg-yellow-50 focus:outline-none"
-                  >
-                    <div className="flex items-center gap-3">
-                      <MapPin className="w-4 h-4 text-yellow-600 flex-shrink-0" />
-                      <span className="text-gray-900 text-sm font-medium">
-                        {prediction.description}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            )}
+{showPredictions && predictions.length > 0 && (
+  <div 
+    ref={predictionsRef}
+    className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border-2 border-yellow-500 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto"
+  >
+    {predictions.map((prediction) => (
+      <button
+        key={prediction.place_id}
+        type="button"
+        onClick={() => selectPrediction(prediction)}
+        className="w-full px-4 py-3 text-left hover:bg-yellow-50 transition-colors duration-200 border-b border-gray-100 last:border-b-0 focus:bg-yellow-50 focus:outline-none"
+      >
+        <div className="flex items-center gap-3">
+          <MapPin className="w-4 h-4 text-yellow-600 flex-shrink-0" />
+          <span className="text-gray-900 text-sm font-medium">
+            {prediction.description}
+          </span>
+        </div>
+      </button>
+    ))}
+  </div>
+)}
           </div>
           
           {/* Add button */}
