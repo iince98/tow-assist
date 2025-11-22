@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
   --primary: #FFCC00;
@@ -73,12 +73,35 @@ body {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.road-sign::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: inherit;
+  pointer-events: none;
 }
 
 .road-sign:hover {
   background: var(--primary-dark);
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 204, 0, 0.4);
+  box-shadow: 
+    0 8px 25px rgba(255, 204, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.road-sign:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 4px 12px rgba(255, 204, 0, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .road-sign-red {
@@ -86,15 +109,14 @@ body {
   color: var(--background);
   border: 3px solid var(--secondary);
   font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.warning-border {
-  border: 3px solid var(--primary);
-  box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
-}
-
-.emergency-glow {
-  box-shadow: 0 0 25px rgba(220, 20, 60, 0.6);
+.road-sign-red:hover {
+  background: var(--accent-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
 }
 
 /* Professional Card Styles */
@@ -102,11 +124,13 @@ body {
   background: var(--background);
   border: 2px solid #E5E7EB;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
 }
 
 .pro-card:hover {
   box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   border-color: var(--primary);
+  transform: translateY(-2px);
 }
 
 /* Glass Effect for Modern Touch */
@@ -133,76 +157,10 @@ body {
     linear-gradient(#E5E7EB 1px, transparent 1px);
   background-size: 100% 40px, 8px 8px;
 }
-.road-sign {
-  background: #FFCC00;
-  color: #000000;
-  border: 3px solid #000000;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.road-sign::before {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  right: 2px;
-  bottom: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.road-sign:hover {
-  background: #E6B800;
-  transform: translateY(-2px);
-  box-shadow: 
-    0 8px 25px rgba(255, 204, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
-.road-sign:active {
-  transform: translateY(0);
-  box-shadow: 
-    0 4px 12px rgba(255, 204, 0, 0.3),
-    inset 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.road-sign-red {
-  background: #DC143C;
-  color: #FFFFFF;
-  border: 3px solid #000000;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.road-sign-red:hover {
-  background: #B01030;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(220, 20, 60, 0.4);
-}
-
-/* Professional Card Enhancements */
-.pro-card {
-  background: #FFFFFF;
-  border: 2px solid #E5E7EB;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-}
-
-.pro-card:hover {
-  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  border-color: #FFCC00;
-  transform: translateY(-2px);
-}
 
 /* Warning and Success States */
 .warning-border {
-  border: 3px solid #FFCC00;
+  border: 3px solid var(--primary);
   box-shadow: 0 4px 15px rgba(255, 204, 0, 0.3);
 }
 
@@ -211,19 +169,23 @@ body {
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
+.emergency-glow {
+  box-shadow: 0 0 25px rgba(220, 20, 60, 0.6);
+}
+
 /* Text colors for better contrast */
 .text-road-yellow {
-  color: #FFCC00;
+  color: var(--primary);
 }
 
 .text-road-black {
-  color: #000000;
+  color: var(--secondary);
 }
 
 .bg-road-yellow {
-  background-color: #FFCC00;
+  background-color: var(--primary);
 }
 
 .bg-road-black {
-  background-color: #000000;
+  background-color: var(--secondary);
 }
