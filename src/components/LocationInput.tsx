@@ -31,7 +31,9 @@ export default function LocationInput({ onBack, onLocationSelect }: LocationInpu
   const geocodingServiceRef = useRef<google.maps.Geocoder | null>(null)
 
   const { isLoaded: mapsApiReady } = useGoogleMaps()
-
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
   useEffect(() => {
     const initializeGoogleMaps = () => {
       if (!window.google?.maps) {

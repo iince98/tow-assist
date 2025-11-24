@@ -560,22 +560,22 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       sun: 'So'
     }
     
-    try {
-      const formattedSchedule = Object.entries(processedHours)
-        .map(([dayKey, timeSlots]) => {
-          const dayLabel = dayLabels[dayKey] || dayKey
-          if (timeSlots === '24/7') return `${dayLabel}: 24/7`
-          if (Array.isArray(timeSlots)) return `${dayLabel}: ${timeSlots[0]} - ${timeSlots[1]}`
-          return `${dayLabel}: ${timeSlots}`
-        })
-        .join(', ')
-      
-      return formattedSchedule
-    } catch (formatError) {
-      console.error('Error formatting working hours:', formatError)
-      return 'Fehler beim Formatieren der Arbeitszeiten'
-    }
+  try {
+    const formattedSchedule = Object.entries(processedHours)
+      .map(([dayKey, timeSlots]) => {
+        const dayLabel = dayLabels[dayKey.toLowerCase()] || dayKey  
+        if (timeSlots === '24/7') return `${dayLabel}: 24/7`
+        if (Array.isArray(timeSlots)) return `${dayLabel}: ${timeSlots[0]} - ${timeSlots[1]}`
+        return `${dayLabel}: ${timeSlots}`
+      })
+      .join(', ')
+    
+    return formattedSchedule
+  } catch (formatError) {
+    console.error('Error formatting working hours:', formatError)
+    return 'Fehler beim Formatieren der Arbeitszeiten'
   }
+}
 
   const switchDriverOnlineStatus = async (targetDriver: Driver) => {
     try {
