@@ -205,44 +205,8 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     }
   }
 
-  const processWorkingHours = (hoursInput: unknown): WorkingHours => {
-    if (!hoursInput) {
-      return {
-        mon: ["08:00", "20:00"],
-        tue: ["08:00", "20:00"],
-        wed: ["08:00", "20:00"],
-        thu: ["08:00", "20:00"],
-        fri: ["08:00", "20:00"],
-        sat: ["09:00", "18:00"],
-        sun: ["10:00", "16:00"]
-      }
-    }
-    
-    if (typeof hoursInput === 'object' && hoursInput !== null) {
-      return hoursInput as WorkingHours
-    }
-    
-    if (typeof hoursInput === 'string') {
-      try {
-        if (hoursInput.trim() === '24/7') {
-          return '24/7'
-        }
-        const parsedData = JSON.parse(hoursInput)
-        return parsedData as WorkingHours
-      } catch (parseError) {
-        console.error('Error parsing working hours:', parseError)
-        return {
-          mon: ["08:00", "20:00"],
-          tue: ["08:00", "20:00"],
-          wed: ["08:00", "20:00"],
-          thu: ["08:00", "20:00"],
-          fri: ["08:00", "20:00"],
-          sat: ["09:00", "18:00"],
-          sun: ["10:00", "16:00"]
-        }
-      }
-    }
-    
+const processWorkingHours = (hoursInput: unknown): WorkingHours => {
+  if (!hoursInput) {
     return {
       mon: ["08:00", "20:00"],
       tue: ["08:00", "20:00"],
@@ -253,6 +217,57 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
       sun: ["10:00", "16:00"]
     }
   }
+  
+
+  if (typeof hoursInput === 'string') {
+    try {
+
+      if (hoursInput.trim().startsWith('{') || hoursInput.trim().startsWith('[')) {
+        const parsedData = JSON.parse(hoursInput)
+        return parsedData as WorkingHours
+      }
+
+      if (hoursInput.trim() === '24/7' || hoursInput.trim() === '24&#x2F;7') {
+        return '24/7'
+      }
+
+      return {
+        mon: ["08:00", "20:00"],
+        tue: ["08:00", "20:00"],
+        wed: ["08:00", "20:00"],
+        thu: ["08:00", "20:00"],
+        fri: ["08:00", "20:00"],
+        sat: ["09:00", "18:00"],
+        sun: ["10:00", "16:00"]
+      }
+    } catch (parseError) {
+      console.error('Error parsing working hours string:', parseError)
+      return {
+        mon: ["08:00", "20:00"],
+        tue: ["08:00", "20:00"],
+        wed: ["08:00", "20:00"],
+        thu: ["08:00", "20:00"],
+        fri: ["08:00", "20:00"],
+        sat: ["09:00", "18:00"],
+        sun: ["10:00", "16:00"]
+      }
+    }
+  }
+
+  if (typeof hoursInput === 'object' && hoursInput !== null && !Array.isArray(hoursInput)) {
+    return hoursInput as WorkingHours
+  }
+
+  return {
+    mon: ["08:00", "20:00"],
+    tue: ["08:00", "20:00"],
+    wed: ["08:00", "20:00"],
+    thu: ["08:00", "20:00"],
+    fri: ["08:00", "20:00"],
+    sat: ["09:00", "18:00"],
+    sun: ["10:00", "16:00"]
+  }
+}
 
   const handleNewDriverLocationChange = (locationData: { address: string; latitude: number; longitude: number }) => {
     setNewDriverInfo({
@@ -531,42 +546,56 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     }
   }
 
-  const displayWorkingHours = (workingHours: unknown): string => {
-    if (!workingHours) {
-      return 'Keine Arbeitszeiten festgelegt'
-    }
-    
-    const processedHours = processWorkingHours(workingHours)
-    
-    if (!processedHours) {
-      return 'Ungültige Arbeitszeiten'
-    }
-    
-    if (typeof processedHours === 'string') {
-      return processedHours === '24/7' ? '24/7 verfügbar' : processedHours
-    }
-    
-    if (typeof processedHours !== 'object' || Array.isArray(processedHours)) {
-      return 'Ungültiges Arbeitszeiten-Format'
-    }
-    
-    const dayLabels: { [key: string]: string } = {
-      mon: 'Mo',
-      tue: 'Di', 
-      wed: 'Mi',
-      thu: 'Do',
-      fri: 'Fr',
-      sat: 'Sa',
-      sun: 'So'
-    }
-    
+const displayWorkingHours = (workingHours: unknown): string => {
+  if (!workingHours) {
+    return 'Keine Arbeitszeiten festgelegt'
+  }
+  
+  const processedHours = processWorkingHours(workingHours)
+  
+  if (!processedHours) {
+    return 'Ungültige Arbeitszeiten'
+  }
+  
+  if (typeof processedHours === 'string') {
+    // Handle the HTML-encoded version and the normal version
+    return processedHours === '24/7' || processedHours === '24&#x2F;7' 
+      ? '24/7 verfügbar' 
+      : processedHours
+  }
+  
+  if (typeof processedHours !== 'object' || Array.isArray(processedHours)) {
+    return 'Ungültiges Arbeitszeiten-Format'
+  }
+  
+  const dayLabels: { [key: string]: string } = {
+    mon: 'Mo',
+    tue: 'Di', 
+    wed: 'Mi',
+    thu: 'Do',
+    fri: 'Fr',
+    sat: 'Sa',
+    sun: 'So'
+  }
+  
   try {
     const formattedSchedule = Object.entries(processedHours)
       .map(([dayKey, timeSlots]) => {
-        const dayLabel = dayLabels[dayKey.toLowerCase()] || dayKey  
-        if (timeSlots === '24/7') return `${dayLabel}: 24/7`
-        if (Array.isArray(timeSlots)) return `${dayLabel}: ${timeSlots[0]} - ${timeSlots[1]}`
-        return `${dayLabel}: ${timeSlots}`
+        const dayLabel = dayLabels[dayKey] || dayKey
+
+        if (typeof timeSlots === 'string' && (timeSlots === '24/7' || timeSlots === '24&#x2F;7')) {
+          return `${dayLabel}: 24/7`
+        }
+
+        if (Array.isArray(timeSlots)) {
+          return `${dayLabel}: ${timeSlots[0]} - ${timeSlots[1]}`
+        }
+        
+        if (typeof timeSlots === 'string') {
+          return `${dayLabel}: ${timeSlots}`
+        }
+        
+        return `${dayLabel}: ${String(timeSlots)}`
       })
       .join(', ')
     
@@ -576,7 +605,6 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     return 'Fehler beim Formatieren der Arbeitszeiten'
   }
 }
-
   const switchDriverOnlineStatus = async (targetDriver: Driver) => {
     try {
       const updatedOnlineStatus = !targetDriver.manuallyOnline
