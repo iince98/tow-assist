@@ -55,8 +55,10 @@ export async function POST(request: Request) {
     `)
     .eq('help_id', helpId)
     .single()
+  
+  const driver = assignment?.drivers?.[0]
 
-  if (error || !assignment || !assignment.drivers?.phone) {
+  if (error || !assignment || !driver?.phone) {
     return new NextResponse(
       `
       <Response>
@@ -70,7 +72,7 @@ export async function POST(request: Request) {
     )
   }
 
-  const driverPhone = assignment.drivers.phone
+  const driverPhone = driver.phone
 
   // STEP 4 — Connect caller to driver
   return new NextResponse(
