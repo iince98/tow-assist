@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   const digits = rawDigits?.replace(/\D/g, '')
 
   /**
-   * 🚫 MAX ATTEMPTS (3)
+   * 🚫 MAX ATTEMPTS = 3
    */
   if (attempt > 3) {
     return new NextResponse(
@@ -43,14 +43,16 @@ export async function POST(request: Request) {
         <Gather
           numDigits="4"
           timeout="6"
-          action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
           method="POST"
+          action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
         >
           <Say language="de-DE">
             ${
               attempt === 1
                 ? 'Willkommen bei Road Assistance. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
-                : 'Die Hilfe I D war ungültig. Bitte versuchen Sie es erneut.'
+                : attempt === 3
+                ? 'Letzter Versuch. Bitte geben Sie jetzt Ihre Hilfe I D ein.'
+                : 'Die Eingabe war ungültig. Bitte versuchen Sie es erneut.'
             }
           </Say>
         </Gather>
@@ -62,13 +64,12 @@ export async function POST(request: Request) {
   /**
    * 🔍 LOOKUP ASSIGNMENT
    */
-  const { data: assignment, error } = await supabase
+  const { data: assignment } = await supabase
     .from('assignments')
     .select(`
       help_id,
       status,
       drivers (
-        name,
         phone
       )
     `)
@@ -77,27 +78,22 @@ export async function POST(request: Request) {
 
   const driverPhone = assignment?.drivers?.phone
 
-  console.log('HELP ID:', digits)
-  console.log('ATTEMPT:', attempt)
-  console.log('ASSIGNMENT:', assignment)
-
   /**
-   * ❌ INVALID HELP ID → retry ONCE
+   * ❌ INVALID HELP ID → re-ask (NO REDIRECT)
    */
-  if (
-    error ||
-    !assignment ||
-    assignment.status !== 'assigned' ||
-    !driverPhone
-  ) {
+  if (!assignment || assignment.status !== 'assigned' || !driverPhone) {
     return new NextResponse(
       `<Response>
-        <Say language="de-DE">
-          Diese Hilfe I D ist nicht gültig.
-        </Say>
-        <Redirect method="POST">
-          https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}
-        </Redirect>
+        <Gather
+          numDigits="4"
+          timeout="6"
+          method="POST"
+          action="https://www.getroadhelp.com/api/twilio/voice?attempt=${attempt + 1}"
+        >
+          <Say language="de-DE">
+            Die Hilfe I D ist nicht gültig. Bitte versuchen Sie es erneut.
+          </Say>
+        </Gather>
       </Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
     )
