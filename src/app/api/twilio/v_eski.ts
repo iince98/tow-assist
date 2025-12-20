@@ -44,7 +44,7 @@ export async function POST(request: Request) {
    * 🔁 ASK FOR HELP ID
    */
   if (!digits) {
-    console.log('No digits entered. Asking for Help ID.')
+    console.log('No digits entered. Asking again.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     .eq('help_id', digits)
     .single<AssignmentWithDriver>()
 
-  console.log('Supabase assignment:', assignment)
+  console.log('Supabase assignment data:', assignment)
   console.log('Supabase error:', error)
 
   const driverPhone = assignment?.drivers?.phone
@@ -94,15 +94,10 @@ export async function POST(request: Request) {
   console.log('Driver Phone:', driverPhone)
 
   /**
-   * ❌ INVALID HELP ID → retry
+   * ❌ INVALID HELP ID → re-ask (NO REDIRECT)
    */
-  if (
-    error ||
-    !assignment ||
-    assignment.status !== 'assigned' ||
-    !driverPhone
-  ) {
-    console.log('Invalid Help ID. Asking again.')
+  if (!assignment || assignment.status !== 'assigned' || !driverPhone) {
+    console.log('Invalid help ID or driver not available. Re-asking.')
     return new NextResponse(
       `<Response>
         <Gather
@@ -121,17 +116,23 @@ export async function POST(request: Request) {
   }
 
   /**
-   * ✅ VALID HELP ID → redirect to recording consent
+   * ✅ CONNECT DRIVER
    */
-  console.log('Help ID valid. Redirecting to recording consent.')
-
+  console.log('Connecting caller to driver...')
   return new NextResponse(
     `<Response>
-      <Redirect method="POST">
-        https://www.getroadhelp.com/api/twilio/connect-driver?driver=${encodeURIComponent(
-          driverPhone
-        )}
-      </Redirect>
+      <Say language="de-DE">
+        Vielen Dank. Wir verbinden Sie jetzt mit Ihrem Fahrer.
+      </Say>
+  
+      <Dial
+        callerId="${process.env.TWILIO_PHONE_NUMBER}"
+        action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driverPhone)}"
+        method="POST"
+      >
+        <Number>${driverPhone}</Number>
+      </Dial>
+
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
   )
