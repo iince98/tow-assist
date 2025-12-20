@@ -1,20 +1,23 @@
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const driverPhone = searchParams.get('driver')
+
   const formData = await request.formData()
 
-  const dialStatus = formData.get('DialCallStatus') as string | null
+  const dialStatus = formData.get('DialCallStatus')
   const dialDuration = formData.get('DialCallDuration')
-  const dialCallSid = formData.get('DialCallSid')
-  const caller = formData.get('From')
-  const called = formData.get('To')
+  const dialSid = formData.get('DialCallSid')
+  const caller = formData.get('Caller')
 
   console.log('--- AFTER DIAL WEBHOOK ---')
   console.log('Dial Status:', dialStatus)
   console.log('Dial Duration:', dialDuration)
-  console.log('Dial CallSid:', dialCallSid)
+  console.log('Dial CallSid:', dialSid)
   console.log('Caller:', caller)
-  console.log('Called (Driver):', called)
+  console.log('Driver Dialed:', driverPhone)
+
 
   /**
    * Speak to caller based on outcome
