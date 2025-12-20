@@ -127,11 +127,12 @@ export async function POST(request: Request) {
   
       <Dial
         callerId="${process.env.TWILIO_PHONE_NUMBER}"
-        action="https://www.getroadhelp.com/api/twilio/after-dial"
+        action="https://www.getroadhelp.com/api/twilio/after-dial?driver=${encodeURIComponent(driverPhone)}"
         method="POST"
       >
         <Number>${driverPhone}</Number>
       </Dial>
+
     </Response>`,
     { headers: { 'Content-Type': 'text/xml' } }
   )
