@@ -1,11 +1,14 @@
 import { NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 
+
 type Assignment = {
   help_id: string
   status: string
-  driver_phone: string | null
-  driver_name: string | null
+  drivers: {
+    phone: string
+    name: string
+  } | null
 }
 
 export async function POST(request: Request) {
@@ -68,15 +71,22 @@ export async function POST(request: Request) {
    * 🔍 LOOKUP ASSIGNMENT (ONLY ASSIGNMENTS TABLE)
    */
   const { data: assignment, error } = await supabase
-    .from('assignments')
-    .select('help_id, status, driver_phone, driver_name')
-    .eq('help_id', digits)
-    .single<Assignment>()
+  .from('assignments')
+  .select(`
+    help_id,
+    status,
+    drivers (
+      phone,
+      name
+    )
+  `)
+  .eq('help_id', digits)
+  .single<Assignment>()
 
   console.log('Assignment:', assignment)
   console.log('Error:', error)
 
-  const driverPhone = assignment?.driver_phone
+  const driverPhone = assignment?.drivers?.phone
 
   /**
    * ❌ REJECT CONDITIONS
@@ -87,7 +97,7 @@ export async function POST(request: Request) {
   if (
     error ||
     !assignment ||
-    assignment.status !== 'pending' ||
+    assignment.status !== 'assigned' ||
     !driverPhone
   ) {
     return new NextResponse(
