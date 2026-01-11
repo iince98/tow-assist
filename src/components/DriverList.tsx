@@ -68,11 +68,10 @@ const confirmDriverAssignment = async (driver: Driver) => {
   }
 }
 
-  const createHelpId = () => {
-    const timeStamp = Date.now().toString(36).toUpperCase().slice(-4)
-    const randomPart = Math.random().toString(36).substring(2, 4).toUpperCase()
-    return `HLP${timeStamp}-${randomPart}`
-  }
+const createHelpId = () => {
+  const randomDigits = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+  return randomDigits
+}
 
   const formatPhoneNumber = (phoneNum: string) => {
     return phoneNum.replace(/(\+49)(\d{2})(\d+)/, '$1 $2 $3')
