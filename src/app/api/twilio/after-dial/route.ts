@@ -67,7 +67,9 @@ export async function POST(request: Request) {
   Task engaged?
   Reply with:
   YES
-  NO`,
+  NO
+  After TASK is completed please send 'COMPLETE'
+  `,
     })
   }
 
