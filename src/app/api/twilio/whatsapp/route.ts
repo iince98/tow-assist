@@ -66,7 +66,7 @@ export async function POST(request: Request) {
       }
     }
   }
-  
+
   if (answer === 'NO') {
     console.log('❌ Task rejected')
 
@@ -77,6 +77,23 @@ export async function POST(request: Request) {
       .eq('status', 'pending')
       .limit(1)
   }
+
+  if (answer === 'COMPLETE') {
+    console.log('🔄 Driver finished task, setting status to pending')
+    const { error } = await supabase
+      .from('assignments')
+      .update({ status: 'pending' })
+      .eq('status', 'assigned')
+      .order('created_at', { ascending: true })
+      .limit(1)
+    
+    if (error) {
+      console.error('❌ Failed to update driver status', error)
+      return new NextResponse('Failed to update driver status', { status: 500 })
+    }
+
+    console.log('✅ Driver status updated to pending')
+  } 
 
   return new NextResponse(
     `<Response>
