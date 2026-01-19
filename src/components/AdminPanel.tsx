@@ -115,24 +115,24 @@ export default function AdminPanel({ onClose }: AdminPanelProps) {
     }
   })
 
-  const loadDriverData = useCallback(async () => {
-    try {
-      setIsDataLoading(true)
-      const apiUrl = showArchivedDrivers 
-        ? '/api/drivers?archived_only=true'
-        : '/api/drivers?include_archived=true'
-      
-      const apiResponse = await fetch(apiUrl)
-      if (!apiResponse.ok) throw new Error('Failed to fetch drivers')
-      const driverData = await apiResponse.json()
-      setDriverList(driverData)
-    } catch (err) {
-      console.error('Error loading driver information:', err)
-      alert('Fehler beim Laden der Fahrerdaten')
-    } finally {
-      setIsDataLoading(false)
-    }
-  }, [showArchivedDrivers])
+const loadDriverData = useCallback(async () => {
+  try {
+    setIsDataLoading(true)
+    const apiUrl = showArchivedDrivers 
+      ? '/api/drivers?archived_only=true'
+      : '/api/drivers?include_archived=false&admin=true' 
+    
+    const apiResponse = await fetch(apiUrl)
+    if (!apiResponse.ok) throw new Error('Failed to fetch drivers')
+    const driverData = await apiResponse.json()
+    setDriverList(driverData)
+  } catch (err) {
+    console.error('Error loading driver information:', err)
+    alert('Fehler beim Laden der Fahrerdaten')
+  } finally {
+    setIsDataLoading(false)
+  }
+}, [showArchivedDrivers])
 
   const loadAssignmentData = useCallback(async () => {
     try {

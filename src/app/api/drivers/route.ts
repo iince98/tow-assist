@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const includeArchived = searchParams.get('include_archived') === 'true'
     const archivedOnly = searchParams.get('archived_only') === 'true'
-
+    const forAdmin = searchParams.get('admin') === 'true'
     let query = supabase
       .from('drivers')
       .select('*')
@@ -26,16 +26,41 @@ export async function GET(request: Request) {
       throw error
     }
 
-    // First filter: available and manuallyOnline drivers
+    if (forAdmin || archivedOnly) {
+      const processedDrivers = (drivers || []).map(driver => ({
+        id: driver.id,
+        name: driver.name,
+        phone: driver.phone,
+        latitude: driver.latitude,
+        longitude: driver.longitude,
+        description: driver.description,
+        available: driver.available,
+        manuallyOnline: driver.manually_online,
+        serviceType: driver.service_type,
+        workingHours: driver.working_hours,
+        rating: driver.rating,
+        vehicleType: driver.vehicle_type,
+        basePrice: driver.base_price,
+        serviceAreas: driver.service_areas || [],
+        features: driver.features || [],
+        maxDistance: driver.max_distance,
+        responseTime: driver.response_time,
+        archived: driver.archived || false,
+        archivedAt: driver.archived_at,
+        archivedReason: driver.archived_reason,
+        originalName: driver.original_name
+      }))
+      return NextResponse.json(processedDrivers)
+    }
+
     const filteredDrivers = (drivers || []).filter(driver =>
       driver.available == true && driver.manually_online == true
     )
 
-    // Check each driver for active assignments
+
     const driversWithAssignmentCheck = await Promise.all(
       filteredDrivers.map(async (driver) => {
         try {
-          // Check if this driver has any 'assigned' status assignments
           const { data: assignments, error: assignmentError } = await supabase
             .from('assignments')
             .select('id, status')
@@ -45,29 +70,9 @@ export async function GET(request: Request) {
 
           if (assignmentError) {
             console.error(`Assignment check error for driver ${driver.id}:`, assignmentError)
-            // On error, play safe - don't show the driver
             return {
-              id: driver.id,
-              name: driver.name,
-              phone: driver.phone,
-              latitude: driver.latitude,
-              longitude: driver.longitude,
-              description: driver.description,
+              ...driver,
               available: false,
-              manuallyOnline: driver.manually_online,
-              serviceType: driver.service_type,
-              workingHours: driver.working_hours,
-              rating: driver.rating,
-              vehicleType: driver.vehicle_type,
-              basePrice: driver.base_price,
-              serviceAreas: driver.service_areas || [],
-              features: driver.features || [],
-              maxDistance: driver.max_distance,
-              responseTime: driver.response_time,
-              archived: driver.archived || false,
-              archivedAt: driver.archived_at,
-              archivedReason: driver.archived_reason,
-              originalName: driver.original_name,
               _hasActiveAssignment: true,
               _error: assignmentError.message
             }
@@ -103,27 +108,8 @@ export async function GET(request: Request) {
         } catch (err) {
           console.error(`Error checking assignments for driver ${driver.id}:`, err)
           return {
-            id: driver.id,
-            name: driver.name,
-            phone: driver.phone,
-            latitude: driver.latitude,
-            longitude: driver.longitude,
-            description: driver.description,
+            ...driver,
             available: false,
-            manuallyOnline: driver.manually_online,
-            serviceType: driver.service_type,
-            workingHours: driver.working_hours,
-            rating: driver.rating,
-            vehicleType: driver.vehicle_type,
-            basePrice: driver.base_price,
-            serviceAreas: driver.service_areas || [],
-            features: driver.features || [],
-            maxDistance: driver.max_distance,
-            responseTime: driver.response_time,
-            archived: driver.archived || false,
-            archivedAt: driver.archived_at,
-            archivedReason: driver.archived_reason,
-            originalName: driver.original_name,
             _hasActiveAssignment: true,
             _error: err instanceof Error ? err.message : 'Unknown error'
           }
@@ -135,7 +121,7 @@ export async function GET(request: Request) {
       driver => driver.available === true
     )
 
-    console.log(`Driver filtering: Total ${drivers?.length || 0}, Available ${filteredDrivers.length}, Actually available ${actuallyAvailableDrivers.length}`)
+    console.log(`Customer driver filtering: Total ${drivers?.length || 0}, Available ${filteredDrivers.length}, Actually available ${actuallyAvailableDrivers.length}`)
 
     return NextResponse.json(actuallyAvailableDrivers)
   } catch (error) {
