@@ -21,7 +21,12 @@ export async function POST(request: Request) {
   console.log('Message:', body)
 
   if (!from || !body) {
-    return new NextResponse('Invalid request', { status: 400 })
+    return new NextResponse(
+      `<Response>
+        <Message>Invalid message.</Message>
+      </Response>`,
+      { headers: { 'Content-Type': 'text/xml' } }
+    )
   }
 
   const answer = body.trim().toUpperCase()
