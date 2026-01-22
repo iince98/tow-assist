@@ -19,9 +19,15 @@ export async function POST(request: Request) {
   console.log('--- WHATSAPP INBOUND ---')
   console.log('From:', from)
   console.log('Message:', body)
+  console.log('Test basliyor')
 
   if (!from || !body) {
-    return new NextResponse('Invalid request', { status: 400 })
+    return new NextResponse(
+      `<Response>
+        <Message>Invalid message.</Message>
+      </Response>`,
+      { headers: { 'Content-Type': 'text/xml' } }
+    )
   }
 
   const answer = body.trim().toUpperCase()
