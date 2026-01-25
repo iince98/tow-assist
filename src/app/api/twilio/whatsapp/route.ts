@@ -40,10 +40,14 @@ export async function POST(request: Request) {
     .eq('phone', phone)
     .single()
 
-  if (driverError || !driver) {
-    console.error('❌ Driver not found')
-    return new NextResponse('Driver not found', { status: 404 })
-  }
+  // Replace your "Driver not found" return with this:
+if (driverError || !driver) {
+  console.error('❌ Driver not found');
+  return new NextResponse(
+    `<Response><Message>Error: Phone number ${phone} not recognized.</Message></Response>`, 
+    { headers: { 'Content-Type': 'text/xml' } }
+  );
+}
 
   console.log('Driver ID:', driver.id)
 
